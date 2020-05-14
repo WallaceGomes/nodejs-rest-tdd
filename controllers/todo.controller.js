@@ -12,3 +12,18 @@ exports.createTodo = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.getTodos = async (req, res, next) => {
+    
+    let todos;
+    try{
+        todos = await TodoModel.find({});
+        res.status(200).json(todos);
+    }catch(err){
+        res.status(500).json({ message: err.message })
+        next(err);
+    }
+
+    // const todos = await TodoModel.find({});
+    // res.status(200).json(todos);
+};
