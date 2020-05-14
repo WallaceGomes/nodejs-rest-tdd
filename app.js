@@ -1,7 +1,9 @@
 const express = require('express');
 const app = express();
-
+const mongoDB = require('./mongodb/mongodb.connect');
 const todoRoutes = require('./routes/todo.routes');
+
+mongoDB.connect();
 
 app.use(express.json());
 
