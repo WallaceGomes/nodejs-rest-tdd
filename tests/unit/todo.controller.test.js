@@ -5,8 +5,10 @@ const allTodos = require('../mock-data/all-todos.json');
 
 const httpMocks = require('node-mocks-http');
 
-TodoModel.create = jest.fn(); //não tem como saber se uma função está sendo chamada se não usar mock
-TodoModel.find = jest.fn(); //não tem como saber se uma função está sendo chamada se não usar mock
+//não tem como saber se uma função está sendo chamada se não usar mock
+TodoModel.create = jest.fn();
+TodoModel.find = jest.fn();
+TodoModel.findById = jest.fn();
 
 let req, res, next;
 beforeEach(() => {
@@ -15,17 +17,28 @@ beforeEach(() => {
     next = jest.fn(); //para ver oque está sendo passado no next
 })
 
+describe("TodoController.getTodoById", () => {
+    it("should have a getTodoById function", () => {
+        expect(typeof TodoController.getTodoById).toBe("function");
+    });
+    it("should call TodoModel.find with route params", async () => {
+        req.params.todoId = "5ebded6907c9b72f44e0f06b";
+        await TodoController.getTodoById(req, res, next);
+        expect(TodoModel.findById).toHaveBeenCalledWith("5ebded6907c9b72f44e0f06b");
+    });
+});
+
 describe("TodoController.getTodos", () => {
     it("should have a getTodos function", () => {
         expect(typeof TodoController.getTodos).toBe("function");
     });
     it("should call TodoModel.find()", async () => {
-        await TodoController.getTodos(res, req, next);
+        await TodoController.getTodos(req, res, next);
         expect(TodoModel.find).toHaveBeenCalledWith({});
     });
     it("should return 200 response code and all todos", async () => {
         TodoModel.find.mockReturnValue(allTodos);
-        await TodoController.getTodos(res, req, next);
+        await TodoController.getTodos(req, res, next);
         expect(res.statusCode).toBe(200);
         expect(res._isEndCalled()).toBeTruthy();
         expect(res._getJSONData()).toStrictEqual(allTodos);
