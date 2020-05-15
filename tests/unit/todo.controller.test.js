@@ -26,6 +26,25 @@ describe("TodoController.getTodoById", () => {
         await TodoController.getTodoById(req, res, next);
         expect(TodoModel.findById).toHaveBeenCalledWith("5ebded6907c9b72f44e0f06b");
     });
+    it("should return json body and response code 200", async () => {
+        TodoModel.findById.mockReturnValue(newTodo);
+        await TodoController.getTodoById(req, res, next);
+        expect(res.statusCode).toBe(200);
+        expect(res._getJSONData()).toStrictEqual(newTodo);
+    });
+    it("should handle errors", async () => {
+        const errorMessage = { message: "Error finding a todo by Id" };
+        const rejectionPromise = Promise.reject(errorMessage);
+        TodoModel.findById.mockReturnValue(rejectionPromise);
+        await TodoController.getTodoById(req, res, next);
+        expect(next).toHaveBeenCalledWith(errorMessage);
+    });
+    it("should return 404 when iten doesn´t exist", async () => {
+        TodoModel.findById.mockReturnValue(null);
+        await TodoController.getTodoById(req, res, next);
+        expect(res.statusCode).toBe(404);
+        expect(res._isEndCalled()).toBeTruthy();
+    });
 });
 
 describe("TodoController.getTodos", () => {

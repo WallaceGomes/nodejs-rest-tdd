@@ -14,6 +14,8 @@ const allTodos = require('../mock-data/all-todos.json');
 
 const endpointUrl = ('/todos/');
 
+let fristTodo;
+
 describe(endpointUrl, () => {
     it('POST ' + endpointUrl, async () => {
         const response = await request(app).post(endpointUrl).send(newTodo);
@@ -39,5 +41,19 @@ describe(endpointUrl, () => {
         expect(Array.isArray(response.body)).toBeTruthy();
         expect(response.body[0].title).toBeDefined();
         expect(response.body[0].done).toBeDefined();
+        fristTodo = response.body[0];
+    });
+});
+
+describe(endpointUrl, () => {
+    it("Get by ID" + endpointUrl + ":todoId", async () => {
+        const response = await request(app).get(endpointUrl + fristTodo._id);
+        expect(response.statusCode).toBe(200);
+        expect(response.body.title).toBe(fristTodo.title);
+        expect(response.body.done).toBe(fristTodo.done);
+    });
+    it("Get by ID when id does" + endpointUrl + ":todoId", async () => {
+        const response = await request(app).get(endpointUrl + "5ebded6907c9b70000000000");
+        expect(response.statusCode).toBe(404);
     });
 });
