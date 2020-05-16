@@ -15,6 +15,7 @@ const allTodos = require('../mock-data/all-todos.json');
 const endpointUrl = ('/todos/');
 
 let fristTodo;
+let newTodoId;
 
 describe(endpointUrl, () => {
     it('POST ' + endpointUrl, async () => {
@@ -22,6 +23,7 @@ describe(endpointUrl, () => {
         expect(response.statusCode).toBe(201);
         expect(response.body.title).toBe(newTodo.title);
         expect(response.body.done).toBe(newTodo.done);
+        newTodoId = response.body._id;
     });
     it("should return error 500 on error format with POST", async () => {
         //missing: done property
@@ -55,5 +57,15 @@ describe(endpointUrl, () => {
     it("Get by ID when id does" + endpointUrl + ":todoId", async () => {
         const response = await request(app).get(endpointUrl + "5ebded6907c9b70000000000");
         expect(response.statusCode).toBe(404);
+    });
+});
+
+describe(endpointUrl, () => {
+    it("PUT by Id and Update" + endpointUrl + ":todoId", async () =>{
+        const testData = { title: "Integration test for PUT", done: true };
+        const response = await request(app).put(endpointUrl + newTodoId).send(testData);
+        expect(response.statusCode).toBe(200);
+        expect(response.body.title).toBe(testData.title);
+        expect(response.body.done).toBe(testData.done);
     });
 });

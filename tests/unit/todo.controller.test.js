@@ -9,8 +9,10 @@ const httpMocks = require('node-mocks-http');
 TodoModel.create = jest.fn();
 TodoModel.find = jest.fn();
 TodoModel.findById = jest.fn();
+TodoModel.findByIdAndUpdate = jest.fn();
 
 let req, res, next;
+let todoId = "5ebded6907c9b72f44e0f06b";
 beforeEach(() => {
     req = httpMocks.createRequest();
     res = httpMocks.createResponse();
@@ -42,6 +44,43 @@ describe("TodoController.getTodoById", () => {
     it("should return 404 when iten doesn´t exist", async () => {
         TodoModel.findById.mockReturnValue(null);
         await TodoController.getTodoById(req, res, next);
+        expect(res.statusCode).toBe(404);
+        expect(res._isEndCalled()).toBeTruthy();
+    });
+});
+
+describe("TodoController.updateTodo", () => {
+    it("should have a updateTodo function", () => {
+        expect(typeof TodoController.updateTodo).toBe("function");
+    });
+    it("should call TodoModel.findByIdAndUpdate", async () => {
+        req.params.todoId = todoId;
+        req.body = newTodo;
+        await TodoController.updateTodo(req, res, next);
+        expect(TodoModel.findByIdAndUpdate).toHaveBeenCalledWith(todoId, newTodo, {
+            new: true,
+            useFindAndModify: false
+        });
+    });
+    it("should return a response with json data and code 200", async () => {
+        req.params.todoId = todoId;
+        req.body = newTodo;
+        TodoModel.findByIdAndUpdate.mockReturnValue(newTodo);
+        await TodoController.updateTodo(req, res, next);
+        expect(res._isEndCalled()).toBeTruthy();
+        expect(res.statusCode).toBe(200);
+        expect(res._getJSONData()).toStrictEqual(newTodo);
+    });
+    it("should handle errors", async () => {
+        const errorMessage = { message: "Error finding a todo by Id and update" };
+        const rejectionPromise = Promise.reject(errorMessage);
+        TodoModel.findByIdAndUpdate.mockReturnValue(rejectionPromise);
+        await TodoController.updateTodo(req, res, next);
+        expect(next).toHaveBeenCalledWith(errorMessage);
+    });
+    it("should return 404 when iten doesn´t exist", async () => {
+        TodoModel.findByIdAndUpdate.mockReturnValue(null);
+        await TodoController.updateTodo(req, res, next);
         expect(res.statusCode).toBe(404);
         expect(res._isEndCalled()).toBeTruthy();
     });

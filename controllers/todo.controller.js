@@ -42,3 +42,21 @@ exports.getTodoById = async (req, res, next) => {
         next(err);
     }
 }
+
+exports.updateTodo = async (req, res, next) => {
+
+    try{
+        updatedTodo = await TodoModel.findByIdAndUpdate(req.params.todoId, req.body, {
+            new: true,
+            useFindAndModify: false
+        })
+        if(updatedTodo){
+            res.status(200).json(updatedTodo);
+        }else{
+            res.status(404).send();
+        }
+    }catch(err){
+        res.status(500).json({ message: err.message });
+        next(err);
+    }
+}
