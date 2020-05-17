@@ -17,6 +17,8 @@ const endpointUrl = ('/todos/');
 let fristTodo;
 let newTodoId;
 
+const testData = { title: "Integration test for PUT", done: true };
+
 describe(endpointUrl, () => {
     it('POST ' + endpointUrl, async () => {
         const response = await request(app).post(endpointUrl).send(newTodo);
@@ -62,10 +64,19 @@ describe(endpointUrl, () => {
 
 describe(endpointUrl, () => {
     it("PUT by Id and Update" + endpointUrl + ":todoId", async () =>{
-        const testData = { title: "Integration test for PUT", done: true };
         const response = await request(app).put(endpointUrl + newTodoId).send(testData);
         expect(response.statusCode).toBe(200);
         expect(response.body.title).toBe(testData.title);
         expect(response.body.done).toBe(testData.done);
     });
 });
+
+describe(endpointUrl, () => {
+    it("DELETE" + endpointUrl + ":todoId", async () =>{
+        const response = await request(app).delete(endpointUrl + newTodoId).send();
+        expect(response.statusCode).toBe(200);
+        expect(response.body.title).toBe(testData.title);
+        expect(response.body.done).toBe(testData.done);
+    });
+});
+
